@@ -1,8 +1,9 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import Select from 'react-select';
 import QuizRenderer from '../../components/QuizRenderer';
 
 registerBlockType('quiz-time/quiz', {
@@ -32,15 +33,35 @@ registerBlockType('quiz-time/quiz', {
             }))
         ] : [];
 
+        const customStyles = {
+            control: (base) => ({
+                ...base,
+                minHeight: '40px',
+                borderColor: '#757575',
+                '&:hover': {
+                    borderColor: '#007cba'
+                }
+            }),
+            menu: (base) => ({
+                ...base,
+                zIndex: 9999
+            })
+        };
+
         return (
             <div {...blockProps}>
                 <InspectorControls>
                     <PanelBody title={__('Test Ayarları', 'quiz-time')}>
-                        <SelectControl
-                            label={__('Test Seçin', 'quiz-time')}
-                            value={attributes.quizId}
+                        <Select
+                            value={quizOptions.find(option => option.value === attributes.quizId)}
+                            onChange={option => setAttributes({ quizId: option.value })}
                             options={quizOptions}
-                            onChange={quizId => setAttributes({ quizId })}
+                            styles={customStyles}
+                            placeholder={__('Test ara veya seç...', 'quiz-time')}
+                            noOptionsMessage={() => __('Test bulunamadı', 'quiz-time')}
+                            isClearable
+                            isSearchable
+                            classNamePrefix="quiz-select"
                         />
                     </PanelBody>
                 </InspectorControls>
@@ -53,17 +74,5 @@ registerBlockType('quiz-time/quiz', {
             </div>
         );
     },
-    save: ({ attributes }) => {
-        const blockProps = useBlockProps.save();
-        return (
-            <div {...blockProps}>
-                {attributes.quizId && (
-                    <div
-                        className="quiz-time-renderer"
-                        data-quiz-id={attributes.quizId}
-                    />
-                )}
-            </div>
-        );
-    }
+    save: () => null
 }); 
