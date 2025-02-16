@@ -772,4 +772,193 @@
 
 .quiz-select__placeholder {
     color: #757575 !important;
+}
+
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+    .quiz-editor {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+    }
+
+    .quiz-editor__json-import {
+        background: #2d2d2d;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .quiz-editor__json-import textarea {
+        background: #1e1e1e;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+
+    .quiz-editor__json-help {
+        background: #2d2d2d;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+
+    .quiz-editor__json-help pre {
+        background: #1e1e1e;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+
+    .quiz-editor__json-help-notes {
+        background: #332b00;
+        border-color: #665800;
+    }
+
+    .quiz-editor__json-help-notes p {
+        color: #ffb900;
+    }
+
+    .quiz-editor__json-help-notes li {
+        color: #ffd966;
+    }
+
+    .quiz-question-editor {
+        background: #2d2d2d;
+        border-color: #404040;
+    }
+
+    .drag-handle {
+        color: #b0b0b0;
+    }
+
+    .tiptap-editor {
+        background: #1e1e1e;
+        border-color: #404040;
+    }
+
+    .ProseMirror {
+        color: #e0e0e0;
+    }
+
+    .editor-menu-bar {
+        background: #2d2d2d;
+        border-color: #404040;
+    }
+
+    .editor-menu-bar .components-toolbar-button {
+        color: #e0e0e0;
+    }
+
+    .editor-menu-bar .components-toolbar-button.is-pressed {
+        background: #404040;
+    }
+
+    .editor-menu-bar .components-toolbar-button:hover {
+        box-shadow: inset 0 0 0 1px #b0b0b0;
+    }
+
+    .question-footer {
+        border-top-color: #404040;
+    }
+
+    .components-select-control__input {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
+        border-color: #404040 !important;
+    }
+
+    .components-select-control__input:focus {
+        border-color: #0073aa !important;
+        box-shadow: 0 0 0 1px #0073aa !important;
+    }
+
+    /* Quiz Renderer Dark Mode */
+    .quiz-renderer {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+    }
+
+    .quiz-renderer .quiz-question {
+        background: #2d2d2d;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    }
+
+    .quiz-option label {
+        background: #333333;
+        border-color: transparent;
+    }
+
+    .quiz-option:hover label {
+        background: #404040;
+        border-color: #0073aa;
+    }
+
+    .quiz-option input[type="checkbox"] {
+        background: #1e1e1e;
+        border-color: #666666;
+    }
+
+    .quiz-option input[type="checkbox"]:checked {
+        background: #0073aa;
+        border-color: #0073aa;
+    }
+
+    .quiz-option.correct label {
+        background: #1b4d1b;
+        border-color: #2e7d32;
+    }
+
+    .quiz-option.incorrect label {
+        background: #4d1b1b;
+        border-color: #d32f2f;
+    }
+
+    .quiz-results {
+        background: #2d2d2d;
+        box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+
+    .quiz-stats .total-questions {
+        background: #333333;
+    }
+
+    .quiz-stats .correct-answers {
+        background: #1b4d1b;
+    }
+
+    .quiz-stats .wrong-answers {
+        background: #4d1b1b;
+    }
+
+    .quiz-stats .empty-answers {
+        background: #333333;
+        color: #b0b0b0;
+    }
+
+    .quiz-score {
+        background: #1a365d !important;
+        color: #90caf9 !important;
+    }
+
+    /* Quiz Block Dark Mode */
+    .quiz-select__control {
+        background-color: #1e1e1e !important;
+        border-color: #404040 !important;
+    }
+
+    .quiz-select__single-value {
+        color: #e0e0e0 !important;
+    }
+
+    .quiz-select__menu {
+        background-color: #2d2d2d !important;
+        border-color: #404040 !important;
+    }
+
+    .quiz-select__option {
+        color: #e0e0e0 !important;
+    }
+
+    .quiz-select__option--is-focused {
+        background-color: #404040 !important;
+    }
+
+    .quiz-select__placeholder {
+        color: #b0b0b0 !important;
+    }
 } 
