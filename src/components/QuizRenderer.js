@@ -73,11 +73,11 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
     };
 
     const handleAnswerSelect = (questionId, answerIndex) => {
-        if (isPreview) return; // Önizlemede cevap seçilemez
+        if (isPreview) return;
 
         setUserAnswers(prev => ({
             ...prev,
-            [questionId]: answerIndex
+            [questionId]: prev[questionId] === answerIndex ? undefined : answerIndex
         }));
     };
 
@@ -162,7 +162,7 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
                                 >
                                     <label>
                                         <input
-                                            type="radio"
+                                            type="checkbox"
                                             name={`question-${questionId}`}
                                             value={optionIndex}
                                             checked={userAnswers[questionId] === optionIndex}
