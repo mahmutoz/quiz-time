@@ -463,8 +463,10 @@ const QuizEditor = () => {
         return (
             question &&
             typeof question.question === 'string' &&
+            question.question.trim() !== '' &&  // Boş olmamalı
             Array.isArray(question.options) &&
             question.options.length === 4 &&
+            question.options.every(opt => typeof opt === 'string' && opt.trim() !== '') && // Her seçenek string ve boş olmamalı
             typeof question.correctAnswer === 'number' &&
             question.correctAnswer >= 0 &&
             question.correctAnswer < 4
@@ -590,17 +592,26 @@ const QuizEditor = () => {
                         <pre>
 {`[
   {
-    "question": "Soru metni",
+    "question": "<p>2023 yılında <strong>Türkiye</strong>'nin başkenti neresidir?</p><p><img src=\\"ankara.jpg\\" alt=\\"Ankara görüntüsü\\" /></p>",
     "options": [
-      "A seçeneği",
-      "B seçeneği",
-      "C seçeneği",
-      "D seçeneği"
+      "<p><em>İstanbul</em></p>",
+      "<p><strong>Ankara</strong></p>",
+      "<p>İzmir</p>",
+      "<p>Bursa</p>"
     ],
-    "correctAnswer": 0 // 0-3 arası (A:0, B:1, C:2, D:3)
+    "correctAnswer": 1
   }
 ]`}
                         </pre>
+                        <div className="quiz-editor__json-help-notes">
+                            <p>{__('Önemli Notlar:', 'quiz-time')}</p>
+                            <ul>
+                                <li>{__('Soru ve seçenek metinlerinde HTML kullanabilirsiniz.', 'quiz-time')}</li>
+                                <li>{__('Görsel eklemek için img etiketi kullanabilirsiniz.', 'quiz-time')}</li>
+                                <li>{__('Kalın, italik, liste gibi formatlamalar yapabilirsiniz.', 'quiz-time')}</li>
+                                <li>{__('JSON içindeki çift tırnakları escape etmeyi unutmayın: \\"', 'quiz-time')}</li>
+                            </ul>
+                        </div>
                     </div>
                     <textarea
                         value={jsonInput}
