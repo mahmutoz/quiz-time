@@ -138,15 +138,17 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
                 const questionId = question.id;
                 return (
                     <div key={questionId} className="quiz-question">
-                        <div className="question-number">{questionIndex + 1}</div>
-                        <div 
-                            className="question-content"
-                            dangerouslySetInnerHTML={{ __html: question.question }}
-                        />
+                        <div className="question-header">
+                            <div className="question-number">{questionIndex + 1}.</div>
+                            <div 
+                                className="question-content"
+                                dangerouslySetInnerHTML={{ __html: question.question }}
+                            />
+                        </div>
                         
                         <div className="quiz-options">
                             {Array.isArray(question.options) && question.options.map((option, optionIndex) => (
-                                <label
+                                <div
                                     key={optionIndex}
                                     className={`quiz-option ${
                                         showResults
@@ -158,16 +160,21 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
                                             : ''
                                     }`}
                                 >
-                                    <input
-                                        type="radio"
-                                        name={`question-${questionId}`}
-                                        value={optionIndex}
-                                        checked={userAnswers[questionId] === optionIndex}
-                                        onChange={() => handleAnswerSelect(questionId, optionIndex)}
-                                        disabled={showResults || isPreview}
-                                    />
-                                    <div dangerouslySetInnerHTML={{ __html: option }} />
-                                </label>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`question-${questionId}`}
+                                            value={optionIndex}
+                                            checked={userAnswers[questionId] === optionIndex}
+                                            onChange={() => handleAnswerSelect(questionId, optionIndex)}
+                                            disabled={showResults || isPreview}
+                                        />
+                                        <div 
+                                            className="quiz-option-content"
+                                            dangerouslySetInnerHTML={{ __html: option }} 
+                                        />
+                                    </label>
+                                </div>
                             ))}
                         </div>
 
@@ -176,17 +183,14 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
                                 {userAnswers[questionId] === undefined ? (
                                     <p className="empty">{__('Bu soru boş bırakıldı.', 'quiz-time')}</p>
                                 ) : userAnswers[questionId] === question.correctAnswer ? (
-                                    <p className="correct">{__('Doğru!', 'quiz-time')}</p>
+                                    <p className="correct">{__('✓ Doğru cevap!', 'quiz-time')}</p>
                                 ) : (
-                                    <div className="incorrect">
-                                        <span>{__('Yanlış. Doğru cevap: ', 'quiz-time')}</span>
-                                        <div 
-                                            className="correct-answer-content"
-                                            dangerouslySetInnerHTML={{ 
-                                                __html: question.options[question.correctAnswer] 
-                                            }} 
-                                        />
-                                    </div>
+                                    <p className="incorrect">
+                                        {__('✗ Yanlış. Doğru cevap: ', 'quiz-time')}
+                                        <span dangerouslySetInnerHTML={{ 
+                                            __html: question.options[question.correctAnswer] 
+                                        }} />
+                                    </p>
                                 )}
                             </div>
                         )}
