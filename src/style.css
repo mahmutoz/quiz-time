@@ -608,6 +608,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #1e1e1e;
 }
 
 .tiptap-editor {
@@ -711,6 +712,10 @@
 
 .quiz-list-ordered {
     list-style-type: decimal;
+}
+
+.components-text {
+    color: #000;
 }
 
 [data-text-align='center'] {
@@ -824,6 +829,10 @@
     .quiz-question-editor {
         background: #2d2d2d;
         border-color: #404040;
+    }
+
+    .components-text {
+        color: #f4f4f4 !important;
     }
 
     .drag-handle {
@@ -965,6 +974,15 @@
     .quiz-select__placeholder {
         color: #b0b0b0 !important;
     }
+
+    .editor-menu-bar .dashicons {
+        color: #e0e0e0;
+    }
+}
+
+[data-wp-theme="dark"] .editor-menu-bar .dashicons,
+.is-dark-theme .editor-menu-bar .dashicons {
+    color: #e0e0e0;
 }
 
 /* Single Quiz Page Styles */
@@ -996,4 +1014,14 @@
     .quiz-time-single .quiz-renderer {
         padding: 20px;
     }
+}
+
+/* Dark mode icon styles */
+.toolbar-icon {
+    color: inherit;
+}
+
+[data-wp-theme="dark"] .toolbar-icon,
+.is-dark-theme .toolbar-icon {
+    color: #fff !important;
 } 
