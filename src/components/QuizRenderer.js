@@ -9,7 +9,10 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
             return {
                 ...initialData,
                 questions: Array.isArray(initialData.questions) 
-                    ? initialData.questions 
+                    ? initialData.questions.map(q => ({
+                        ...q,
+                        id: q.id || q.tempId || Date.now() + Math.random()
+                    }))
                     : []
             };
         }
@@ -21,7 +24,7 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (isPreview || !initialData) {
+        if (!initialData || isPreview) {
             loadQuiz();
         }
     }, [quizId, isPreview, initialData]);
@@ -51,6 +54,12 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
                 questions = [];
             }
 
+            // Her soruya benzersiz ID ata
+            questions = questions.map(q => ({
+                ...q,
+                id: q.id || q.tempId || Date.now() + Math.random()
+            }));
+
             setQuiz({
                 title: response.title.rendered,
                 questions: questions
@@ -64,6 +73,8 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
     };
 
     const handleAnswerSelect = (questionId, answerIndex) => {
+        if (isPreview) return; // Önizlemede cevap seçilemez
+
         setUserAnswers(prev => ({
             ...prev,
             [questionId]: answerIndex
@@ -123,62 +134,65 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
         <div className="quiz-renderer">
             <h2>{quiz.title}</h2>
             
-            {quiz.questions.map((question, questionIndex) => (
-                <div key={question.id || questionIndex} className="quiz-question">
-                    <div className="question-number">{questionIndex + 1}</div>
-                    <div 
-                        className="question-content"
-                        dangerouslySetInnerHTML={{ __html: question.question }}
-                    />
-                    
-                    <div className="quiz-options">
-                        {Array.isArray(question.options) && question.options.map((option, optionIndex) => (
-                            <label
-                                key={optionIndex}
-                                className={`quiz-option ${
-                                    showResults
-                                        ? optionIndex === question.correctAnswer
-                                            ? 'correct'
-                                            : userAnswers[question.id] === optionIndex
-                                            ? 'incorrect'
+            {quiz.questions.map((question, questionIndex) => {
+                const questionId = question.id;
+                return (
+                    <div key={questionId} className="quiz-question">
+                        <div className="question-number">{questionIndex + 1}</div>
+                        <div 
+                            className="question-content"
+                            dangerouslySetInnerHTML={{ __html: question.question }}
+                        />
+                        
+                        <div className="quiz-options">
+                            {Array.isArray(question.options) && question.options.map((option, optionIndex) => (
+                                <label
+                                    key={optionIndex}
+                                    className={`quiz-option ${
+                                        showResults
+                                            ? optionIndex === question.correctAnswer
+                                                ? 'correct'
+                                                : userAnswers[questionId] === optionIndex
+                                                ? 'incorrect'
+                                                : ''
                                             : ''
-                                        : ''
-                                }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name={`question-${question.id || questionIndex}`}
-                                    value={optionIndex}
-                                    checked={userAnswers[question.id] === optionIndex}
-                                    onChange={() => handleAnswerSelect(question.id || questionIndex, optionIndex)}
-                                    disabled={showResults || isPreview}
-                                />
-                                <div dangerouslySetInnerHTML={{ __html: option }} />
-                            </label>
-                        ))}
-                    </div>
-
-                    {showResults && (
-                        <div className="quiz-feedback">
-                            {userAnswers[question.id] === undefined ? (
-                                <p className="empty">{__('Bu soru boş bırakıldı.', 'quiz-time')}</p>
-                            ) : userAnswers[question.id] === question.correctAnswer ? (
-                                <p className="correct">{__('Doğru!', 'quiz-time')}</p>
-                            ) : (
-                                <div className="incorrect">
-                                    <span>{__('Yanlış. Doğru cevap: ', 'quiz-time')}</span>
-                                    <div 
-                                        className="correct-answer-content"
-                                        dangerouslySetInnerHTML={{ 
-                                            __html: question.options[question.correctAnswer] 
-                                        }} 
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name={`question-${questionId}`}
+                                        value={optionIndex}
+                                        checked={userAnswers[questionId] === optionIndex}
+                                        onChange={() => handleAnswerSelect(questionId, optionIndex)}
+                                        disabled={showResults || isPreview}
                                     />
-                                </div>
-                            )}
+                                    <div dangerouslySetInnerHTML={{ __html: option }} />
+                                </label>
+                            ))}
                         </div>
-                    )}
-                </div>
-            ))}
+
+                        {showResults && (
+                            <div className="quiz-feedback">
+                                {userAnswers[questionId] === undefined ? (
+                                    <p className="empty">{__('Bu soru boş bırakıldı.', 'quiz-time')}</p>
+                                ) : userAnswers[questionId] === question.correctAnswer ? (
+                                    <p className="correct">{__('Doğru!', 'quiz-time')}</p>
+                                ) : (
+                                    <div className="incorrect">
+                                        <span>{__('Yanlış. Doğru cevap: ', 'quiz-time')}</span>
+                                        <div 
+                                            className="correct-answer-content"
+                                            dangerouslySetInnerHTML={{ 
+                                                __html: question.options[question.correctAnswer] 
+                                            }} 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
 
             <div className="quiz-actions">
                 {!isPreview && !showResults && (

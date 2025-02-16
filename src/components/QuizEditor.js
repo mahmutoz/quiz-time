@@ -185,6 +185,8 @@ const TiptapEditor = ({ content, onChange, placeholder }) => {
 };
 
 const SortableQuestion = ({ question, questionIndex, OPTION_LABELS, onQuestionChange, onRemove }) => {
+    const id = question.tempId || question.id || generateTempId();
+    
     const {
         attributes,
         listeners,
@@ -192,7 +194,9 @@ const SortableQuestion = ({ question, questionIndex, OPTION_LABELS, onQuestionCh
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: question.id.toString() });
+    } = useSortable({ 
+        id: id.toString()
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -218,7 +222,7 @@ const SortableQuestion = ({ question, questionIndex, OPTION_LABELS, onQuestionCh
                 
                 <div className="question-options">
                     {question.options.map((option, optionIndex) => (
-                        <div key={`${question.id}-option-${optionIndex}`} className="option-row">
+                        <div key={`${id}-option-${optionIndex}`} className="option-row">
                             <span className="option-label">{OPTION_LABELS[optionIndex]}</span>
                             <TiptapEditor
                                 content={option}
@@ -455,9 +459,23 @@ const QuizEditor = () => {
         });
     };
 
+    const validateQuestionData = (question) => {
+        return (
+            question &&
+            typeof question.question === 'string' &&
+            Array.isArray(question.options) &&
+            question.options.length === 4 &&
+            typeof question.correctAnswer === 'number' &&
+            question.correctAnswer >= 0 &&
+            question.correctAnswer < 4
+        );
+    };
+
+    const generateTempId = () => `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     const addQuestion = () => {
         const newQuestion = {
-            id: Date.now(),
+            tempId: generateTempId(),
             question: '',
             options: ['', '', '', ''],
             correctAnswer: 0
@@ -470,10 +488,19 @@ const QuizEditor = () => {
 
         if (active.id !== over.id) {
             setQuestions((items) => {
-                const oldIndex = items.findIndex(item => item.id.toString() === active.id);
-                const newIndex = items.findIndex(item => item.id.toString() === over.id);
+                const oldIndex = items.findIndex(item => {
+                    const itemId = (item.tempId || item.id || generateTempId()).toString();
+                    return itemId === active.id;
+                });
+                const newIndex = items.findIndex(item => {
+                    const itemId = (item.tempId || item.id || generateTempId()).toString();
+                    return itemId === over.id;
+                });
                 
-                return arrayMove(items, oldIndex, newIndex);
+                if (oldIndex !== -1 && newIndex !== -1) {
+                    return arrayMove(items, oldIndex, newIndex);
+                }
+                return items;
             });
         }
     };
@@ -486,14 +513,62 @@ const QuizEditor = () => {
 
     const handleJsonImport = () => {
         try {
-            const importedQuestions = JSON.parse(jsonInput);
-            if (Array.isArray(importedQuestions)) {
-                setQuestions(importedQuestions);
-                setJsonInput('');
-                setShowJsonImport(false);
+            // Boş input kontrolü
+            if (!jsonInput.trim()) {
+                alert(__('Lütfen JSON verisi girin.', 'quiz-time'));
+                return;
             }
+
+            const importedQuestions = JSON.parse(jsonInput);
+            
+            // Array kontrolü
+            if (!Array.isArray(importedQuestions)) {
+                throw new Error(__('JSON verisi bir dizi olmalıdır', 'quiz-time'));
+            }
+
+            // Boş dizi kontrolü
+            if (importedQuestions.length === 0) {
+                alert(__('En az bir soru içeren JSON verisi girin.', 'quiz-time'));
+                return;
+            }
+
+            // Her sorunun yapısını kontrol et
+            const invalidQuestions = importedQuestions.filter(q => !validateQuestionData(q));
+            if (invalidQuestions.length > 0) {
+                throw new Error(__('Bazı sorular geçersiz formatta', 'quiz-time'));
+            }
+
+            // Her soruya geçici ID ata
+            const questionsWithTempIds = importedQuestions.map(q => ({
+                ...q,
+                tempId: generateTempId(),
+                // HTML içeriği güvenliği için
+                question: q.question.toString(),
+                options: q.options.map(opt => opt.toString())
+            }));
+
+            // Kullanıcıya seçenek sun
+            if (questions.length > 0) {
+                const shouldReplace = window.confirm(
+                    __('Mevcut sorular var. Yeni soruları mevcut soruların üzerine yazmak mı, yoksa eklemek mi istersiniz?\n\nTamam: Üzerine Yaz\nİptal: Ekle', 'quiz-time')
+                );
+
+                if (shouldReplace) {
+                    setQuestions(questionsWithTempIds);
+                } else {
+                    setQuestions(prev => [...prev, ...questionsWithTempIds]);
+                }
+            } else {
+                setQuestions(questionsWithTempIds);
+            }
+
+            setJsonInput('');
+            setShowJsonImport(false);
         } catch (e) {
-            alert('Geçersiz JSON formatı!');
+            console.error('JSON import error:', e);
+            alert(
+                __('JSON verisi geçersiz!\n\nBeklenen format:\n[\n  {\n    "question": string,\n    "options": [string, string, string, string],\n    "correctAnswer": number (0-3)\n  },\n  ...\n]', 'quiz-time')
+            );
         }
     };
 
@@ -510,6 +585,23 @@ const QuizEditor = () => {
 
             {showJsonImport && (
                 <div className="quiz-editor__json-import">
+                    <div className="quiz-editor__json-help">
+                        <p>{__('Beklenen JSON formatı:', 'quiz-time')}</p>
+                        <pre>
+{`[
+  {
+    "question": "Soru metni",
+    "options": [
+      "A seçeneği",
+      "B seçeneği",
+      "C seçeneği",
+      "D seçeneği"
+    ],
+    "correctAnswer": 0 // 0-3 arası (A:0, B:1, C:2, D:3)
+  }
+]`}
+                        </pre>
+                    </div>
                     <textarea
                         value={jsonInput}
                         onChange={(e) => setJsonInput(e.target.value)}
@@ -527,12 +619,15 @@ const QuizEditor = () => {
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext
-                    items={questions.map(q => q.id.toString())}
+                    items={questions.map(q => {
+                        const id = q.tempId || q.id || generateTempId();
+                        return id.toString();
+                    })}
                     strategy={verticalListSortingStrategy}
                 >
                     {questions.map((question, questionIndex) => (
                         <SortableQuestion
-                            key={question.id}
+                            key={question.tempId || question.id || generateTempId()}
                             question={question}
                             questionIndex={questionIndex}
                             OPTION_LABELS={OPTION_LABELS}
