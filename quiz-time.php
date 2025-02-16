@@ -154,4 +154,108 @@ function quiz_time_enqueue_admin_scripts() {
         filemtime(plugin_dir_path(__FILE__) . 'build/style-index.css')
     );
 }
-add_action('admin_enqueue_scripts', 'quiz_time_enqueue_admin_scripts'); 
+add_action('admin_enqueue_scripts', 'quiz_time_enqueue_admin_scripts');
+
+// Plugin yüklendiğinde çalışacak fonksiyon
+function quiz_time_activate() {
+    // Quiz post type'ını kaydet
+    quiz_time_register_post_type();
+    
+    // Rewrite rules'ı yenile
+    flush_rewrite_rules();
+}
+register_activation_hook(__FILE__, 'quiz_time_activate');
+
+// Plugin kaldırıldığında çalışacak fonksiyon
+function quiz_time_deactivate() {
+    // Rewrite rules'ı yenile
+    flush_rewrite_rules();
+}
+register_deactivation_hook(__FILE__, 'quiz_time_deactivate');
+
+// Quiz post type'ını kaydet
+function quiz_time_register_post_type() {
+    register_post_type('quiz', array(
+        'labels' => array(
+            'name' => __('Testler', 'quiz-time'),
+            'singular_name' => __('Test', 'quiz-time'),
+            'add_new' => __('Yeni Ekle', 'quiz-time'),
+            'add_new_item' => __('Yeni Test Ekle', 'quiz-time'),
+            'edit_item' => __('Testi Düzenle', 'quiz-time'),
+            'new_item' => __('Yeni Test', 'quiz-time'),
+            'view_item' => __('Testi Görüntüle', 'quiz-time'),
+            'search_items' => __('Test Ara', 'quiz-time'),
+            'not_found' => __('Test bulunamadı', 'quiz-time'),
+            'not_found_in_trash' => __('Çöp kutusunda test bulunamadı', 'quiz-time'),
+            'menu_name' => __('Testler', 'quiz-time')
+        ),
+        'public' => true,
+        'show_in_rest' => true,
+        'supports' => array('title', 'editor', 'thumbnail'),
+        'menu_icon' => 'dashicons-welcome-learn-more',
+        'has_archive' => true,
+        'rewrite' => array('slug' => 'quiz')
+    ));
+}
+add_action('init', 'quiz_time_register_post_type');
+
+// Single quiz template'ini özelleştir
+function quiz_time_single_template($template) {
+    if (is_singular('quiz')) {
+        // Quiz verilerini al
+        global $post;
+        $questions = get_post_meta($post->ID, '_quiz_questions', true);
+        
+        // Soruları JSON'dan PHP array'e dönüştür
+        if (!empty($questions) && is_string($questions)) {
+            $questions = json_decode($questions, true);
+        }
+        
+        // Eğer sorular boşsa veya geçersizse, boş array kullan
+        if (empty($questions) || !is_array($questions)) {
+            $questions = array();
+        }
+
+        // Frontend script ve stillerini yükle
+        wp_enqueue_script('quiz-time-script');
+        wp_enqueue_style('quiz-time-style');
+
+        // Quiz verilerini inline script olarak ekle
+        wp_add_inline_script('quiz-time-script', sprintf(
+            'window.quizTimeBlock_%s = {
+                questions: %s,
+                title: %s
+            };',
+            esc_js($post->ID),
+            wp_json_encode($questions),
+            wp_json_encode($post->post_title)
+        ), 'before');
+
+        // Template içeriğini oluştur
+        ob_start();
+        ?>
+        <!DOCTYPE html>
+        <html <?php language_attributes(); ?>>
+        <head>
+            <?php wp_head(); ?>
+        </head>
+        <body <?php body_class(); ?>>
+            <?php wp_body_open(); ?>
+            
+            <div class="quiz-time-single">
+                <div class="quiz-time-renderer" data-quiz-id="<?php echo esc_attr($post->ID); ?>"></div>
+            </div>
+
+            <?php wp_footer(); ?>
+        </body>
+        </html>
+        <?php
+        $content = ob_get_clean();
+
+        // Template içeriğini yazdır
+        echo $content;
+        exit;
+    }
+    return $template;
+}
+add_filter('single_template', 'quiz_time_single_template'); 

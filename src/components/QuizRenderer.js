@@ -45,9 +45,14 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
 
             let questions = [];
             if (response.meta._quiz_questions) {
-                questions = typeof response.meta._quiz_questions === 'string'
-                    ? JSON.parse(response.meta._quiz_questions)
-                    : response.meta._quiz_questions;
+                try {
+                    questions = typeof response.meta._quiz_questions === 'string'
+                        ? JSON.parse(response.meta._quiz_questions)
+                        : response.meta._quiz_questions;
+                } catch (e) {
+                    console.error('Quiz questions parsing error:', e);
+                    questions = [];
+                }
             }
 
             if (!Array.isArray(questions)) {
@@ -61,6 +66,7 @@ const QuizRenderer = ({ quizId, isPreview = false, initialData = null }) => {
             }));
 
             setQuiz({
+                id: response.id,
                 title: response.title.rendered,
                 questions: questions
             });

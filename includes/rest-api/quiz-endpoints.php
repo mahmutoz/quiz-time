@@ -33,13 +33,26 @@ function quiz_time_get_quiz_data($request) {
 
     $questions = get_post_meta($quiz_id, '_quiz_questions', true);
     
+    // Soruları JSON'dan PHP array'e dönüştür
+    if (!empty($questions) && is_string($questions)) {
+        $questions = json_decode($questions, true);
+    }
+    
+    // Eğer sorular boşsa veya geçersizse, boş array kullan
+    if (empty($questions) || !is_array($questions)) {
+        $questions = array();
+    }
+
     return array(
         'id' => $quiz->ID,
         'title' => array(
             'rendered' => $quiz->post_title
         ),
+        'content' => array(
+            'rendered' => apply_filters('the_content', $quiz->post_content)
+        ),
         'meta' => array(
-            '_quiz_questions' => $questions ? $questions : '[]'
+            '_quiz_questions' => $questions
         )
     );
 } 

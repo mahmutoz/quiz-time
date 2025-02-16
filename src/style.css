@@ -961,4 +961,35 @@
     .quiz-select__placeholder {
         color: #b0b0b0 !important;
     }
+}
+
+/* Single Quiz Page Styles */
+.quiz-time-single {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.quiz-time-single .quiz-renderer {
+    background: var(--wp--preset--color--background, #fff);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .quiz-time-single .quiz-renderer {
+        background: var(--wp--preset--color--background, #1e1e1e);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+@media (max-width: 768px) {
+    .quiz-time-single {
+        margin: 20px auto;
+    }
+    
+    .quiz-time-single .quiz-renderer {
+        padding: 20px;
+    }
 } 
