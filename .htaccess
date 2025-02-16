@@ -1,0 +1,34 @@
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, X-WP-Nonce, Authorization, Origin, Accept"
+Header set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Prevent access to wp-config.php
+<Files wp-config.php>
+Order allow,deny
+Deny from all
+</Files>
+
+php_value upload_max_filesize 64M
+php_value post_max_size 64M
+php_value memory_limit 256M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# END WordPress 
