@@ -592,7 +592,7 @@ const QuizEditor = () => {
                         <pre>
 {`[
   {
-    "question": "<p>2023 yılında <strong>Türkiye</strong>'nin başkenti neresidir?</p><p><img src=\\"ankara.jpg\\" alt=\\"Ankara görüntüsü\\" /></p>",
+    "question": "<p>2023 yılında <strong>Türkiye</strong>'nin başkenti neresidir?</p>",
     "options": [
       "<p><em>İstanbul</em></p>",
       "<p><strong>Ankara</strong></p>",
@@ -607,7 +607,6 @@ const QuizEditor = () => {
                             <p>{__('Önemli Notlar:', 'quiz-time')}</p>
                             <ul>
                                 <li>{__('Soru ve seçenek metinlerinde HTML kullanabilirsiniz.', 'quiz-time')}</li>
-                                <li>{__('Görsel eklemek için img etiketi kullanabilirsiniz.', 'quiz-time')}</li>
                                 <li>{__('Kalın, italik, liste gibi formatlamalar yapabilirsiniz.', 'quiz-time')}</li>
                                 <li>{__('JSON içindeki çift tırnakları escape etmeyi unutmayın: \\"', 'quiz-time')}</li>
                             </ul>
